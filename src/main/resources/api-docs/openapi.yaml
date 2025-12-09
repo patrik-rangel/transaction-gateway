@@ -1,0 +1,132 @@
+openapi: 3.0.3
+info:
+  title: Anti-Fraud Transaction Gateway
+  description: >
+    API Gateway responsável pela ingestão de transações financeiras para análise de fraude.
+    Esta API opera de forma assíncrona e garante idempotência baseada no ID da transação.
+  version: 1.0.0
+  contact:
+    name: Time de Engenharia
+    email: engineering@bank-fake.com
+
+servers:
+  - url: http://localhost:8080
+    description: Ambiente Local
+
+paths:
+  /v1/transactions/{transaction_id}:
+    post:
+      summary: Submeter transação para análise
+      description: >
+        Recebe os dados de uma transação financeira para análise de risco.
+        A resposta é imediata (202 Accepted) indicando que o processamento foi iniciado.
+        Se o mesmo `transaction_id` for enviado novamente, a API garante idempotência.
+      operationId: analyzeTransaction
+      parameters:
+        - name: transaction_id
+          in: path
+          description: UUID único da transação gerado pelo Payment Service (chave de idempotência).
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+      requestBody:
+        description: Dados detalhados da transação financeira.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '202':
+          description: >
+            Aceito. A transação foi recebida, validada e enfileirada para análise.
+            O resultado final será processado assincronamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Requisição inválida (falha na validação dos campos).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: >
+            Conflito. Uma transação com este `transaction_id` já foi processada anteriormente.
+        '500':
+          description: Erro interno do servidor.
+
+components:
+  schemas:
+    TransactionRequest:
+      type: object
+      required:
+        - amount
+        - currency
+        - merchant_id
+        - user_id
+        - timestamp
+      properties:
+        amount:
+          type: integer
+          description: Valor da transação em centavos.
+          example: 15000
+          minimum: 1
+        currency:
+          type: string
+          description: Código da moeda.
+          example: "BRL"
+          minLength: 3
+          maxLength: 3
+        merchant_id:
+          type: string
+          description: Identificador do estabelecimento comercial.
+          example: "merch_982312"
+        user_id:
+          type: string
+          description: Identificador do cliente pagador.
+          example: "user_123456"
+        timestamp:
+          type: string
+          format: date-time
+          description: Data e hora exata da transação.
+          example: "2025-10-25T14:30:00Z"
+        device_fingerprint:
+          type: string
+          description: Identificador único do dispositivo do usuário. Crucial para detecção de fraude.
+          example: "android_id_8823hha8"
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+              example: -23.550520
+            longitude:
+              type: number
+              format: double
+              example: -46.633308
+
+    TransactionResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "PENDING"
+          enum: ["PENDING"]
+        message:
+          type: string
+          example: "Transaction received and queued for analysis."
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "INVALID_FIELD"
+        message:
+          type: string
+          example: "Amount must be greater than zero."
