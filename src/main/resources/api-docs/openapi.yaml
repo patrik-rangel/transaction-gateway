@@ -16,6 +16,8 @@ servers:
 paths:
   /v1/transactions/{transaction_id}:
     post:
+      tags:
+        - Transactions
       summary: Submeter transação para análise
       description: >
         Recebe os dados de uma transação financeira para análise de risco.
