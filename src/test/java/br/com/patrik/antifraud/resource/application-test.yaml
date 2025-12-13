@@ -1,0 +1,14 @@
+mp:
+  messaging:
+    outgoing:
+      transactions-created:
+        connector: smallrye-in-memory
+
+quarkus:
+  log:
+    category:
+      "br.com.patrik.antifraud":
+        level: DEBUG
+  redis:
+    devservices:
+      enabled: true
