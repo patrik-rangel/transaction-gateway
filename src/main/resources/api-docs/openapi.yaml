@@ -71,6 +71,7 @@ components:
         - merchant_id
         - user_id
         - timestamp
+        - device_fingerprint
       properties:
         amount:
           type: integer

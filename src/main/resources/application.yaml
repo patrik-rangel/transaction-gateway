@@ -1,0 +1,44 @@
+quarkus:
+  redis:
+    hosts: redis://localhost:6379
+  log:
+    level: INFO
+    category:
+      "br.com.patrik.antifraud":
+        level: DEBUG
+    console:
+      enable: true
+      format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
+      json:
+        false
+  jacoco:
+    report: true
+    excludes:
+      - br/com/patrik/antifraud/gateway/api/**
+      - br/com/patrik/antifraud/gateway/model/**
+      - br/com/patrik/antifraud/infrastructure/**
+      - "**/*Config.class"
+    check:
+      enabled: true
+      min-line-coverage: 0.80
+      min-branch-coverage: 0.80
+
+antifraud:
+  cache:
+    ttl: 300
+    prefix: "idempotency:"
+  business:
+    allowed-currencies: [BRL, USD, EUR]
+
+mp:
+  messaging:
+    outgoing:
+      transactions-created:
+        connector: smallrye-kafka
+        topic: transactions-created
+        value:
+          serializer: io.quarkus.kafka.client.serialization.ObjectMapperSerializer
+
+kafka:
+  bootstrap:
+    servers: localhost:9092

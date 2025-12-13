@@ -1,0 +1,58 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: antifraud-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - fraud-net
+
+  kafka:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: antifraud-kafka
+    command:
+      - redpanda start
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --overprovisioned
+      - --node-id 0
+      - --check=false
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://kafka:29092,OUTSIDE://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+    ports:
+      - "9092:9092"   # Acesso externo
+      - "29092:29092" # Acesso interno
+      - "8081:8081"   # Schema Registry
+    networks:
+      - fraud-net
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: antifraud-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: antifraud_db
+    ports:
+      - "5432:5432"
+    networks:
+      - fraud-net
+
+  kafka-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: antifraud-kafka-ui
+    environment:
+      KAFKA_BROKERS: kafka:29092
+    ports:
+      - "8085:8080"
+    depends_on:
+      - kafka
+    networks:
+      - fraud-net
+
+networks:
+  fraud-net:
+    driver: bridge
