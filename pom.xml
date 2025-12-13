@@ -117,6 +117,12 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.smallrye.reactive</groupId>
+            <artifactId>smallrye-reactive-messaging-in-memory</artifactId>
+            <version>4.31.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
