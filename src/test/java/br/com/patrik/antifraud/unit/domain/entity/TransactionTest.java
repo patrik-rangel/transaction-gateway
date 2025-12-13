@@ -1,5 +1,7 @@
-package br.com.patrik.antifraud.domain.entity;
+package br.com.patrik.antifraud.unit.domain.entity;
 
+import br.com.patrik.antifraud.domain.entity.Transaction;
+import br.com.patrik.antifraud.domain.exception.InvalidDataException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.UUID;
@@ -36,7 +38,7 @@ class TransactionTest {
     void shouldThrowException_WhenAmountIsNegative() {
         var id = UUID.randomUUID();
 
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(InvalidDataException.class, () ->
                 Transaction.create(id,
                         -10L,
                         "BRL",
@@ -55,7 +57,7 @@ class TransactionTest {
         var id = UUID.randomUUID();
 
         // Act & Assert
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(InvalidDataException.class, () ->
                 Transaction.create(
                         id,
                         null,

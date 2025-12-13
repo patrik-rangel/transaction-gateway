@@ -1,4 +1,4 @@
-package br.com.patrik.antifraud.domain.service;
+package br.com.patrik.antifraud.unit.domain.service;
 
 import br.com.patrik.antifraud.domain.entity.Transaction;
 import br.com.patrik.antifraud.domain.enums.TransactionResultStatus;
@@ -7,6 +7,7 @@ import br.com.patrik.antifraud.domain.exception.UnsupportedCurrencyException;
 import br.com.patrik.antifraud.domain.gateway.CacheGateway;
 import br.com.patrik.antifraud.domain.gateway.ConfigurationGateway;
 import br.com.patrik.antifraud.domain.gateway.TransactionEventGateway;
+import br.com.patrik.antifraud.domain.service.TransactionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

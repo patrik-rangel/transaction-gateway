@@ -1,5 +1,6 @@
-package br.com.patrik.antifraud.application.controller;
+package br.com.patrik.antifraud.unit.application.controller;
 
+import br.com.patrik.antifraud.application.controller.TransactionController;
 import br.com.patrik.antifraud.domain.entity.Transaction;
 import br.com.patrik.antifraud.domain.entity.TransactionResult;
 import br.com.patrik.antifraud.domain.enums.TransactionResultStatus;
