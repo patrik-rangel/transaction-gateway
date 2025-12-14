@@ -29,6 +29,8 @@ antifraud:
     prefix: "idempotency:"
   business:
     allowed-currencies: [BRL, USD, EUR]
+  security:
+    api-key: ${API_KEY}
 
 mp:
   messaging:
