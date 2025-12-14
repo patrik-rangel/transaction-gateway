@@ -13,6 +13,8 @@ servers:
   - url: http://localhost:8080
     description: Ambiente Local
 
+security:
+  - ApiKeyAuth: []
 paths:
   /v1/transactions/{transaction_id}:
     post:
@@ -62,6 +64,11 @@ paths:
           description: Erro interno do servidor.
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
   schemas:
     TransactionRequest:
       type: object

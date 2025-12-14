@@ -7,6 +7,7 @@ import br.com.patrik.antifraud.domain.exception.UnsupportedCurrencyException;
 import br.com.patrik.antifraud.domain.gateway.CacheGateway;
 import br.com.patrik.antifraud.domain.gateway.ConfigurationGateway;
 import br.com.patrik.antifraud.domain.gateway.TransactionEventGateway;
+import br.com.patrik.antifraud.domain.metrics.AntifraudMetrics;
 import br.com.patrik.antifraud.domain.service.TransactionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,12 +36,15 @@ class TransactionServiceTest {
     @Mock
     ConfigurationGateway configGateway;
 
+    @Mock
+    AntifraudMetrics metrics;
+
     @BeforeEach
     void setup() {
 
         Mockito.when(configGateway.getAllowedCurrencies()).thenReturn(Set.of("BRL", "USD"));
 
-        this.service = new TransactionService(cacheGateway, eventGateway, configGateway);
+        this.service = new TransactionService(cacheGateway, eventGateway, configGateway, metrics);
     }
 
     @Test
@@ -62,6 +66,10 @@ class TransactionServiceTest {
         var result = service.processTransaction(transaction);
 
         Assertions.assertEquals(TransactionResultStatus.PENDING, result.status());
+        Mockito.verify(
+                metrics,
+                Mockito.times(1)
+        ).incrementTransactionCount(transaction.currency(), "SUCCESS");
         Mockito.verify(eventGateway, Mockito.times(1)).sendVerifiedTransaction(any());
     }
 

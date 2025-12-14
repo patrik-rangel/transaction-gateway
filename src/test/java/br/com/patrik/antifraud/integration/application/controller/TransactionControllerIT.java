@@ -11,6 +11,7 @@ import io.smallrye.reactive.messaging.memory.InMemoryConnector;
 import io.smallrye.reactive.messaging.memory.InMemorySink;
 import jakarta.enterprise.inject.Any;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,10 @@ import static org.hamcrest.Matchers.is;
 @QuarkusTest
 @TestHTTPEndpoint(TransactionController.class)
 class TransactionControllerIT {
+
+    @Inject
+    @ConfigProperty(name = "antifraud.security.api-key")
+    String apiKey;
 
     @Inject
     @Any
@@ -40,19 +45,10 @@ class TransactionControllerIT {
     @Test
     void shouldProcessTransactionSuccessfully_HappyPath() {
         var transactionId = UUID.randomUUID();
-        var request = new TransactionRequest();
-        request.setAmount(1500);
-        request.setCurrency("BRL");
-        request.setUserId("user-integration-test");
-        request.setDeviceFingerprint("fingerprint-123");
-        request.setTimestamp(new Date());
-
-        var location = new TransactionRequestLocation();
-        location.setLatitude(-23.5);
-        location.setLongitude(-46.6);
-        request.setLocation(location);
+        var request = createValidRequest();
 
         given()
+                .header("Authorization", apiKey)
                 .contentType("application/json")
                 .body(request)
                 .when()
@@ -80,20 +76,26 @@ class TransactionControllerIT {
         request.setAmount(100);
         request.setCurrency("USD");
 
-        given().contentType("application/json").body(request)
+        given()
+                .header("Authorization", apiKey)
+                .contentType("application/json")
+                .body(request)
                 .post("/" + transactionId)
-                .then().statusCode(202);
+                .then()
+                .statusCode(202);
 
-        given().contentType("application/json").body(request)
+        given()
+                .header("Authorization", apiKey)
+                .contentType("application/json")
+                .body(request)
                 .when()
                 .post("/" + transactionId)
                 .then()
-                // 3. Assert
                 .statusCode(409) // Conflict
                 .body("code", is("TRANSACTION_DUPLICATE"));
 
         InMemorySink<TransactionVerifiedEvent> kafkaQueue = connector.sink("transactions-created");
-        Assertions.assertEquals(1, kafkaQueue.received().size(), "Should verify strictly 1 event sent");
+        Assertions.assertEquals(1, kafkaQueue.received().size(), "Should verify strictly 1 event sent (from the first call)");
     }
 
     @Test
@@ -103,7 +105,10 @@ class TransactionControllerIT {
         request.setAmount(100);
         request.setCurrency("XYZ");
 
-        given().contentType("application/json").body(request)
+        given()
+                .header("Authorization", apiKey)
+                .contentType("application/json")
+                .body(request)
                 .when()
                 .post("/" + transactionId)
                 .then()
@@ -111,5 +116,57 @@ class TransactionControllerIT {
                 .body("code", is("INVALID_CURRENCY"));
 
         Assertions.assertEquals(0, connector.sink("transactions-created").received().size());
+    }
+
+    @Test
+    void shouldReturnUnauthorized_WhenApiKeyIsInvalid() {
+        var transactionId = UUID.randomUUID();
+        var request = new TransactionRequest();
+        request.setAmount(500);
+        request.setCurrency("BRL");
+
+        given()
+                .header("Authorization", "chave-hacker-errada") // <--- Cenário de Chave Errada
+                .contentType("application/json")
+                .body(request)
+                .when()
+                .post("/" + transactionId)
+                .then()
+                .statusCode(401)
+                .body("code", is("UNAUTHORIZED"))
+                .body("message", is("Invalid or missing API Key"));
+
+        Assertions.assertEquals(0, connector.sink("transactions-created").received().size());
+    }
+
+    @Test
+    void shouldReturnUnauthorized_WhenApiKeyIsMissing() {
+        var transactionId = UUID.randomUUID();
+        var request = new TransactionRequest();
+        request.setAmount(500);
+        request.setCurrency("BRL");
+
+        given()
+                .contentType("application/json")
+                .body(request)
+                .when()
+                .post("/" + transactionId)
+                .then()
+                .statusCode(401);
+    }
+
+    private TransactionRequest createValidRequest() {
+        var request = new TransactionRequest();
+        request.setAmount(1500);
+        request.setCurrency("BRL");
+        request.setUserId("user-integration-test");
+        request.setDeviceFingerprint("fingerprint-123");
+        request.setTimestamp(new Date());
+
+        var location = new TransactionRequestLocation();
+        location.setLatitude(-23.5);
+        location.setLongitude(-46.6);
+        request.setLocation(location);
+        return request;
     }
 }
