@@ -1,6 +1,12 @@
 quarkus:
   redis:
     hosts: redis://localhost:6379
+  micrometer:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        path: /q/metrics
   log:
     level: INFO
     category:

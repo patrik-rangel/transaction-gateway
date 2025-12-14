@@ -12,3 +12,7 @@ quarkus:
   redis:
     devservices:
       enabled: true
+
+antifraud:
+  security:
+    api-key: "test-key"
