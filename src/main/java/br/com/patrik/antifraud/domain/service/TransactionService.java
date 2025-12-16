@@ -2,7 +2,6 @@ package br.com.patrik.antifraud.domain.service;
 
 import br.com.patrik.antifraud.domain.entity.Transaction;
 import br.com.patrik.antifraud.domain.entity.TransactionResult;
-import br.com.patrik.antifraud.domain.entity.TransactionVerifiedEvent;
 import br.com.patrik.antifraud.domain.enums.TransactionResultStatus;
 import br.com.patrik.antifraud.domain.exception.DuplicateTransactionException;
 import br.com.patrik.antifraud.domain.exception.UnsupportedCurrencyException;
@@ -49,13 +48,7 @@ public class TransactionService {
 
             log.infof("Starting processing for transaction %s", transaction.transactionId());
 
-            var event = new TransactionVerifiedEvent(
-                    transaction.transactionId().toString(),
-                    Double.valueOf(transaction.amount()),
-                    "PENDING_ANALYSIS"
-            );
-
-            eventGateway.sendVerifiedTransaction(event);
+            eventGateway.sendVerifiedTransaction(transaction);
 
             metrics.incrementTransactionCount(transaction.currency(), "SUCCESS");
 

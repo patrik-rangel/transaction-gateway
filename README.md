@@ -60,12 +60,21 @@ Nota: O campo amount deve ser enviado como Inteiro (centavos). Ex: R$ 1.500,50 =
   "timestamp": "2025-12-14T10:00:00Z",
   "device_fingerprint": "device-hash-abc",
   "merchant_id": "1234",
+  "mcc": "5834",
   "location": { 
       "latitude": -23.5, 
       "longitude": -46.6 
     }
 }
 ```
+**Exemplo de Response:**
+```json
+{
+  "status": "PENDING",
+  "message": "Transaction received for analysis"
+}
+```
+
 
 **Exemplo CURL:**
 ```bash
@@ -80,6 +89,7 @@ curl -i -X POST http://localhost:8080/v1/transactions/$(uuidgen) \
     "timestamp": "2025-12-13T19:00:00Z",
     "device_fingerprint": "device-hash-abc",
     "merchant_id": "1234",
+    "mcc": "5834"
     "location": {
         "latitude": -23.5505,
         "longitude": -46.6333

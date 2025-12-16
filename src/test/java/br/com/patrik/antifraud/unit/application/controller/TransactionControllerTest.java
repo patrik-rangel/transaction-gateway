@@ -49,6 +49,7 @@ class TransactionControllerTest {
         request.setUserId("user123");
         request.setTimestamp(new Date());
         request.setDeviceFingerprint("device-abc");
+        request.setMcc("5834");
         request.setLocation(location);
     }
 

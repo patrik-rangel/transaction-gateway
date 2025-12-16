@@ -79,6 +79,7 @@ components:
         - user_id
         - timestamp
         - device_fingerprint
+        - mcc
       properties:
         amount:
           type: integer
@@ -108,6 +109,10 @@ components:
           type: string
           description: Identificador único do dispositivo do usuário. Crucial para detecção de fraude.
           example: "android_id_8823hha8"
+        mcc:
+          type: string
+          description: Identificador da categoria principal de atividade comercial do estabelecimento
+          example: "5541"
         location:
           type: object
           properties:

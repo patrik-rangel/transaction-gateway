@@ -43,6 +43,7 @@ public class TransactionController implements TransactionsApi {
                 req.getUserId(),
                 req.getTimestamp(),
                 req.getDeviceFingerprint(),
+                req.getMcc(),
                 latitude,
                 longitude
         );
