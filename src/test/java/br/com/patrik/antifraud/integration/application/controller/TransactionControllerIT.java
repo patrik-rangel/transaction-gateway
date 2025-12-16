@@ -1,7 +1,7 @@
 package br.com.patrik.antifraud.integration.application.controller;
 
 import br.com.patrik.antifraud.application.controller.TransactionController;
-import br.com.patrik.antifraud.domain.entity.TransactionVerifiedEvent;
+import br.com.patrik.antifraud.domain.entity.Transaction;
 import br.com.patrik.antifraud.gateway.model.TransactionRequest;
 import br.com.patrik.antifraud.gateway.model.TransactionRequestLocation;
 import io.quarkus.redis.datasource.RedisDataSource;
@@ -58,12 +58,12 @@ class TransactionControllerIT {
                 .body("message", is("Transaction received for analysis"))
                 .body("status", is("PENDING"));
 
-        InMemorySink<TransactionVerifiedEvent> kafkaQueue = connector.sink("transactions-created");
+        InMemorySink<Transaction> kafkaQueue = connector.sink("transactions-created");
         Assertions.assertEquals(1, kafkaQueue.received().size(), "Should have sent 1 message to Kafka");
 
-        TransactionVerifiedEvent event = kafkaQueue.received().get(0).getPayload();
-        Assertions.assertEquals(transactionId.toString(), event.transactionId());
-        Assertions.assertEquals(1500.0, event.amount());
+        Transaction event = kafkaQueue.received().getFirst().getPayload();
+        Assertions.assertEquals(transactionId.toString(), event.transactionId().toString());
+        Assertions.assertEquals(1500, event.amount());
 
         boolean existsInRedis = redisDataSource.key().exists(transactionId.toString());
         Assertions.assertTrue(existsInRedis, "Transaction ID should be stored in Redis for idempotency");
@@ -94,7 +94,7 @@ class TransactionControllerIT {
                 .statusCode(409) // Conflict
                 .body("code", is("TRANSACTION_DUPLICATE"));
 
-        InMemorySink<TransactionVerifiedEvent> kafkaQueue = connector.sink("transactions-created");
+        InMemorySink<Transaction> kafkaQueue = connector.sink("transactions-created");
         Assertions.assertEquals(1, kafkaQueue.received().size(), "Should verify strictly 1 event sent (from the first call)");
     }
 
@@ -161,6 +161,7 @@ class TransactionControllerIT {
         request.setCurrency("BRL");
         request.setUserId("user-integration-test");
         request.setDeviceFingerprint("fingerprint-123");
+        request.setMcc("5834");
         request.setTimestamp(new Date());
 
         var location = new TransactionRequestLocation();
