@@ -57,6 +57,7 @@ class TransactionServiceTest {
                 "user1",
                 null,
                 "device1",
+                "5834",
                 -23.0,
                 -46.0
         );
@@ -82,6 +83,7 @@ class TransactionServiceTest {
                 "user1",
                 null,
                 "device1",
+                "5834",
                 null,
                 null
         );
@@ -97,12 +99,14 @@ class TransactionServiceTest {
     @Test
     void shouldThrowException_WhenTransactionIsDuplicate() {
         var id = UUID.randomUUID();
-        var transaction = Transaction.create(id,
+        var transaction = Transaction.create(
+                id,
                 1000L,
                 "BRL",
                 "user1",
                 null,
                 "device1",
+                "5834",
                 null,
                 null
         );

@@ -12,6 +12,7 @@ public record Transaction(
         String userId,
         Date timestamp,
         String deviceFingerPrint,
+        String mcc,
         Location location
 ) {
 
@@ -22,6 +23,7 @@ public record Transaction(
             String userId,
             Date timestamp,
             String deviceFingerPrint,
+            String mcc,
             Double latitude,
             Double longitude
     ) {
@@ -37,6 +39,7 @@ public record Transaction(
                 userId,
                 timestamp,
                 deviceFingerPrint,
+                mcc,
                 Location.create(latitude, longitude)
         );
     }

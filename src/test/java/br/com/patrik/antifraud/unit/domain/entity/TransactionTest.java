@@ -21,6 +21,7 @@ class TransactionTest {
                 "user123",
                 now,
                 "fingerprint-xyz",
+                "5834",
                 -23.5,
                 -46.6
         );
@@ -45,6 +46,7 @@ class TransactionTest {
                         "user",
                         null,
                         "fp",
+                        "5834",
                         null,
                         null
                 )
@@ -53,10 +55,8 @@ class TransactionTest {
 
     @Test
     void shouldThrowException_WhenAmountIsNull() {
-        // Arrange
         var id = UUID.randomUUID();
 
-        // Act & Assert
         Assertions.assertThrows(InvalidDataException.class, () ->
                 Transaction.create(
                         id,
@@ -65,6 +65,7 @@ class TransactionTest {
                         "user",
                         null,
                         "fp",
+                        "5834",
                         null,
                         null
                 )
@@ -80,6 +81,7 @@ class TransactionTest {
                 "user",
                 null,
                 "fp",
+                "5834",
                 null,
                 null
         );
@@ -97,6 +99,7 @@ class TransactionTest {
                 "user",
                 null,
                 "fp",
+                "5834",
                 -23.5,
                 null
         );

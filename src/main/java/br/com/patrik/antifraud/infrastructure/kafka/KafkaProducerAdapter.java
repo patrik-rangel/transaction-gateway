@@ -1,6 +1,6 @@
 package br.com.patrik.antifraud.infrastructure.kafka;
 
-import br.com.patrik.antifraud.domain.entity.TransactionVerifiedEvent;
+import br.com.patrik.antifraud.domain.entity.Transaction;
 import br.com.patrik.antifraud.domain.gateway.TransactionEventGateway;
 import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,15 +19,15 @@ import java.util.List;
 public class KafkaProducerAdapter implements TransactionEventGateway {
     private static final Logger log = Logger.getLogger(KafkaProducerAdapter.class);
 
-    private final Emitter<TransactionVerifiedEvent> emitter;
+    private final Emitter<Transaction> emitter;
 
     @Inject
-    public KafkaProducerAdapter(@Channel("transactions-created") Emitter<TransactionVerifiedEvent> emitter) {
+    public KafkaProducerAdapter(@Channel("transactions-created") Emitter<Transaction> emitter) {
         this.emitter = emitter;
     }
 
     @Override
-    public void sendVerifiedTransaction(TransactionVerifiedEvent event) {
+    public void sendVerifiedTransaction(Transaction event) {
         try {
             String correlationId = (String) MDC.get("correlationId");
 
@@ -46,7 +46,7 @@ public class KafkaProducerAdapter implements TransactionEventGateway {
                     ))
                     .build();
 
-            Message<TransactionVerifiedEvent> message = Message.of(event)
+            Message<Transaction> message = Message.of(event)
                     .addMetadata(metadata);
 
             emitter.send(message);
